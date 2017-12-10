@@ -1,0 +1,58 @@
+#! /usr/bin/env perl
+
+use strict;
+use warnings;
+
+#
+# A Munin plugin.
+#
+# RabbitMQ Erlang virtual machine memory consumption.
+#
+
+if (exists $ARGV[0] and $ARGV[0] eq 'autoconf') {
+    print "yes\n";
+    exit 0;
+}
+
+open(my $status, '-|', 'rabbitmqctl status') or die "Can't open: $!";
+
+my @maxmem = ();
+my @memory = ();
+
+while (<$status>) {
+    chomp;
+    push @maxmem, $_ if /^\s*\{vm_memory_limit\s*,/;
+    push @memory, $_ if /^\s*\{memory\s*,/ ... /^\s*\[*\{\s*total\s*,/;
+}
+
+die 'Error: no data' unless @maxmem and @memory;
+
+my $maxmem = $maxmem[-1];
+$maxmem =~ s/\D//g;
+
+die "Unexpected number: \$maxmem = \"$maxmem\"" if $maxmem < 0;
+
+my $memory = $memory[-1];
+$memory =~ s/\D//g;
+
+die "Unexpected number: \$memory = \"$memory\"" if $memory < 0;
+die "Error: \$maxmem smaller than \$memory: $maxmem $memory"
+    if $maxmem < $memory;
+
+if (exists $ARGV[0] and $ARGV[0] eq 'config') {
+    print 'graph_args --base 1024 -l 0 --vertical-label Bytes '
+        . "--upper-limit $maxmem\n"
+        . "graph_title RabbitMQ VM memory usage\n"
+        . "graph_category rabbitmq\n"
+        . "graph_order used free\n"
+        . "used.label used\n"
+        . "used.colour COLOUR2\n"
+        . "used.draw AREA\n"
+        . "free.label free\n"
+        . "free.colour COLOUR18\n"
+        . "free.draw STACK\n";
+    exit 0;
+}
+
+print "free.value " . ($maxmem - $memory) . "\n";
+print "used.value $memory\n";
