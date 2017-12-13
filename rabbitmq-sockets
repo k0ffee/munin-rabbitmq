@@ -29,13 +29,13 @@ while (<$status>) {
 
 die 'Error: no data' unless @maxsock and @sockets;
 
-my $maxsock = $maxsock[-1];
+my $maxsock = pop @maxsock;
 $maxsock =~ s/\D//g;
 
 die "Unexpected number: \$maxsock = \"$maxsock\""
     if $maxsock < 0;
 
-my $sockets = $sockets[-1];
+my $sockets = pop sockets;
 $sockets =~ s/\D//g;
 
 die "Unexpected number: \$sockets = \"$sockets\""

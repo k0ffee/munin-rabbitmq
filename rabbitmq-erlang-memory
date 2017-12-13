@@ -27,12 +27,12 @@ while (<$status>) {
 
 die 'Error: no data' unless @maxmem and @memory;
 
-my $maxmem = $maxmem[-1];
+my $maxmem = pop @maxmem;
 $maxmem =~ s/\D//g;
 
 die "Unexpected number: \$maxmem = \"$maxmem\"" if $maxmem < 0;
 
-my $memory = $memory[-1];
+my $memory = pop @memory;
 $memory =~ s/\D//g;
 
 die "Unexpected number: \$memory = \"$memory\"" if $memory < 0;

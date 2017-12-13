@@ -29,13 +29,13 @@ while (<$status>) {
 
 die 'Error: no data' unless @maxfdescr and @filedescr;
 
-my $maxfdescr = $maxfdescr[-1];
+my $maxfdescr = pop @maxfdescr;
 $maxfdescr =~ s/\D//g;
 
 die "Unexpected number: \$maxfdescr = \"$maxfdescr\""
     if $maxfdescr < 0;
 
-my $filedescr = $filedescr[-1];
+my $filedescr = pop @filedescr;
 $filedescr =~ s/\D//g;
 
 die "Unexpected number: \$filedescr = \"$filedescr\""
